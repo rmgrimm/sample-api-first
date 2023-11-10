@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation=" http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd http://www.w3.org/2001/XMLSchema-instance https://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.github.rmgrimm</groupId>
+  <artifactId>sample-api-first</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>Sample API-first Service</name>
+  <description><![CDATA[
+  ]]></description>
+
+  <properties>
+    <maven.compiler.release>17</maven.compiler.release>
+
+    <version.spring-boot>3.1.5</version.spring-boot>
+    <version.openapi-generator-maven-plugin>7.0.1</version.openapi-generator-maven-plugin>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${version.spring-boot}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-yaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>${project.build.directory}/generated-sources/src/main/resources</directory>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.openapitools</groupId>
+        <artifactId>openapi-generator-maven-plugin</artifactId>
+        <version>${version.openapi-generator-maven-plugin}</version>
+        <executions>
+          <execution>
+            <id>generate-service-code</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <configuration>
+              <inputSpec>
+                https://github.com/janus-api-idp/test/raw/master/specification.yaml
+              </inputSpec>
+              <output>
+                ${project.build.directory}/generated-sources/api-service
+              </output>
+
+              <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+
+              <generatorName>spring</generatorName>
+
+              <!-- Generate API service, but no test stubs or docs -->
+              <generateApis>true</generateApis>
+              <generateApiTests>false</generateApiTests>
+              <generateApiDocumentation>false</generateApiDocumentation>
+
+              <!-- Generate models based upon OpenAPI schemas, but no tests or docs -->
+              <generateModels>true</generateModels>
+              <generateModelTests>false</generateModelTests>
+              <generateModelDocumentation>false</generateModelDocumentation>
+
+              <!-- Only need some supporting files, but we'll generate them all... they don't get in the way -->
+              <generateSupportingFiles>true</generateSupportingFiles>
+
+              <configOptions>
+                <!-- Generate for spring boot 3 -->
+                <library>spring-boot</library>
+                <useJakartaEe>true</useJakartaEe>
+                <useSpringBoot3>true</useSpringBoot3>
+
+                <!-- Use delegate pattern to facilitate build-time code generation -->
+                <delegatePattern>true</delegatePattern>
+
+                <!-- Don't use annotations to document service; redundant with input spec -->
+                <documentationProvider>none</documentationProvider>
+                <annotationLibrary>none</annotationLibrary>
+
+                <!-- Set packages -->
+                <basePackage>com.github.rmgrimm.apifirst</basePackage>
+                <configPackage>com.github.rmgrimm.apifirst.controller</configPackage>
+                <apiPackage>com.github.rmgrimm.apifirst.api</apiPackage>
+                <modelPackage>com.github.rmgrimm.apifirst.model</modelPackage>
+
+                <!-- Validate incoming bean objects -->
+                <useBeanValidation>true</useBeanValidation>
+
+                <!-- Don't use openapi-generator's custom "nullable" wrapper -->
+                <openApiNullable>false</openApiNullable>
+
+                <!-- Hide the generation timestamp in effort to make the build more bit-exact reproducible -->
+                <hideGenerationTimestamp>true</hideGenerationTimestamp>
+
+                <!-- Don't use ResponseEntity -->
+                <useResponseEntity>false</useResponseEntity>
+              </configOptions>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${version.spring-boot}</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <phase>package</phase>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
